@@ -3,21 +3,96 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Consolatio Automation Hub</title>
+    <title>Fetch Shopify Orders</title>
+    <style>
+      /* General Reset */
+      body {
+        margin: 0;
+        font-family: "Arial", sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      /* Container */
+      .container {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+
+      /* Form Elements */
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      label {
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-align: left;
+      }
+
+      input[type="date"] {
+        padding: 0.7rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+        width: 100%;
+      }
+
+      button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 0.8rem;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      /* Results Section */
+      #results {
+        margin-top: 2rem;
+        text-align: left;
+        font-size: 0.9rem;
+      }
+
+      pre {
+        background-color: #f0f0f0;
+        padding: 1rem;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+    </style>
   </head>
   <body>
-    <h1>Consolatio Automation Hub</h1>
-    <form id="orderForm">
-      <label for="startDate">Start Date:</label>
-      <input type="date" id="startDate" name="startDate" required />
-      <br />
-      <label for="endDate">End Date:</label>
-      <input type="date" id="endDate" name="endDate" required />
-      <br />
-      <button type="submit">Fetch Orders</button>
-    </form>
+    <div class="container">
+      <h1 style="font-size: 1.5rem; color: #007bff">Fetch Shopify Orders</h1>
+      <form id="orderForm">
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" name="startDate" required />
 
-    <div id="results"></div>
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" name="endDate" required />
+
+        <button type="submit">Fetch Orders</button>
+      </form>
+      <div id="results"></div>
+    </div>
 
     <script>
       document
@@ -32,6 +107,8 @@
             alert("Please select both start and end dates.");
             return;
           }
+
+          document.getElementById("results").innerHTML = `<p>Loading...</p>`;
 
           try {
             const response = await fetch(
@@ -48,12 +125,14 @@
             const data = await response.json();
 
             document.getElementById("results").innerHTML = `
-          <h2>Orders</h2>
+          <h2 style="font-size: 1.2rem; color: #333;">Orders</h2>
           <pre>${JSON.stringify(data, null, 2)}</pre>
         `;
           } catch (error) {
             console.error("Error fetching orders:", error);
-            alert("Failed to fetch orders. Check the console for details.");
+            document.getElementById("results").innerHTML = `
+          <p style="color: red;">Failed to fetch orders. Check the console for details.</p>
+        `;
           }
         });
     </script>
