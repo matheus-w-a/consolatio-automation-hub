@@ -41,7 +41,7 @@
         text-align: left;
       }
 
-      input[type="date"] {
+      input[type="text"] {
         padding: 0.7rem;
         border: 1px solid #ccc;
         border-radius: 5px;
@@ -90,10 +90,22 @@
       </h1>
       <form id="orderForm">
         <label for="startDate">Data inicial:</label>
-        <input type="date" id="startDate" name="startDate" required />
+        <input
+          type="text"
+          id="startDate"
+          name="startDate"
+          placeholder="DD/MM/YYYY"
+          required
+        />
 
         <label for="endDate">Data final:</label>
-        <input type="date" id="endDate" name="endDate" required />
+        <input
+          type="text"
+          id="endDate"
+          name="endDate"
+          placeholder="DD/MM/YYYY"
+          required
+        />
 
         <button type="submit" id="submitButton">Enviar</button>
       </form>
@@ -114,20 +126,25 @@
             alert("Selecione a data inicial e final.");
             return;
           }
-
-          document.getElementById("results").innerHTML = `<p>Enviando...</p>`;
-          fetchButton.disabled = true;
-
-          const formatDate = (dateString) => {
-            const date = new Date(dateString);
-            const month = String(date.getMonth() + 1).padStart(2, "0");
-            const day = String(date.getDate()).padStart(2, "0");
-            const year = date.getFullYear();
-            return `${month}/${day}/${year}T03:00:00Z`;
+          const isValidDate = (dateString) => {
+            const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+            return dateRegex.test(dateString);
           };
 
-          const formattedStartDate = formatDate(startDate);
-          const formattedEndDate = formatDate(endDate);
+          if (!isValidDate(startDate) || !isValidDate(endDate)) {
+            alert("Por favor, insira uma data válida no formato DD/MM/YYYY.");
+            return;
+          }
+
+          const convertToISO = (dateString) => {
+            const [day, month, year] = dateString.split("/");
+            return `${day}/${month}/${year}T03:00:00Z`;
+          };
+
+          const formattedStartDate = convertToISO(startDateInput);
+          const formattedEndDate = convertToISO(endDateInput);
+          document.getElementById("results").innerHTML = `<p>Enviando...</p>`;
+          fetchButton.disabled = true;
 
           try {
             const response = await fetch(
