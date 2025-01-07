@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fetch Shopify Orders</title>
+    <title>Consolatio Automation Hub</title>
     <style>
       /* General Reset */
       body {
@@ -46,7 +46,6 @@
         border: 1px solid #ccc;
         border-radius: 5px;
         font-size: 1rem;
-        width: 100%;
       }
 
       button {
@@ -60,8 +59,13 @@
         transition: background-color 0.3s ease;
       }
 
-      button:hover {
+      button:hover:enabled {
         background-color: #0056b3;
+      }
+
+      button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
       }
 
       /* Results Section */
@@ -81,15 +85,17 @@
   </head>
   <body>
     <div class="container">
-      <h1 style="font-size: 1.5rem; color: #007bff">Fetch Shopify Orders</h1>
+      <h1 style="font-size: 1.5rem; color: #007bff">
+        Gerar planilha de pedidos não processados
+      </h1>
       <form id="orderForm">
-        <label for="startDate">Start Date:</label>
+        <label for="startDate">Data inicial:</label>
         <input type="date" id="startDate" name="startDate" required />
 
-        <label for="endDate">End Date:</label>
+        <label for="endDate">Data final:</label>
         <input type="date" id="endDate" name="endDate" required />
 
-        <button type="submit">Fetch Orders</button>
+        <button type="submit" id="submitButton">Enviar</button>
       </form>
       <div id="results"></div>
     </div>
@@ -102,37 +108,55 @@
 
           const startDate = document.getElementById("startDate").value;
           const endDate = document.getElementById("endDate").value;
-
+          const fetchButton = document.getElementById("submitButton");
+          const form = event.target;
           if (!startDate || !endDate) {
-            alert("Please select both start and end dates.");
+            alert("Selecione a data inicial e final.");
             return;
           }
 
           document.getElementById("results").innerHTML = `<p>Loading...</p>`;
+          fetchButton.disabled = true;
+
+          const formatDate = (dateString) => {
+            const date = new Date(dateString);
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            const year = date.getFullYear();
+            return `${month}/${day}/${year}T03:00:00Z`;
+          };
+
+          const formattedStartDate = formatDate(startDate);
+          const formattedEndDate = formatDate(endDate);
 
           try {
             const response = await fetch(
-              "https://your-api-endpoint.com/fetch-orders",
+              "https://cnq89u4t7l.execute-api.us-east-2.amazonaws.com/v2-check-unprocessed-orders",
               {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ startDate, endDate }),
+                body: JSON.stringify({
+                  startDate: formattedStartDate,
+                  endDate: formattedEndDate,
+                }),
               }
             );
 
             const data = await response.json();
 
             document.getElementById("results").innerHTML = `
-          <h2 style="font-size: 1.2rem; color: #333;">Orders</h2>
-          <pre>${JSON.stringify(data, null, 2)}</pre>
+          <h2 style="font-size: 1.2rem; color: #333;">Gerado com sucesso!</h2>
         `;
           } catch (error) {
             console.error("Error fetching orders:", error);
             document.getElementById("results").innerHTML = `
-          <p style="color: red;">Failed to fetch orders. Check the console for details.</p>
+				<p style="color: red;">Erro ao gerar planilha, fale com o Matheus.</p>
         `;
+          } finally {
+            form.reset();
+            fetchButton.disabled = false;
           }
         });
     </script>
